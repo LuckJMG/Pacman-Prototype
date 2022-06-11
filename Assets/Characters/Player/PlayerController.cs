@@ -1,140 +1,121 @@
 using UnityEngine;
+using System;
 
-public class PlayerController : MonoBehaviour, IMovePointDependable
-{
+public class PlayerController : MonoBehaviour, IMovePointDependable {
+    PlayerManager playerManager;
+
     [Header("Fields")]
-    [Range(0f, 10f)] [SerializeField] private float speed = 4f;
-    private bool isPlayerDeath;
-    private Vector2 lastInput;
-    private Vector3 origin;
+    [Range(0f, 10f)] [SerializeField] float speed = 4f;
+    bool isPlayerDeath;
+    Vector2 lastInput;
+    Vector3 origin;
+
+    // Events
+    public event Action OnRestart;
 
     [Header("Assets")]
-    [SerializeField] private Sprite startSprite;
+    [SerializeField] Sprite startSprite;
 
     [Header("Layers")]
-    [SerializeField] private LayerMask wall;
-    [SerializeField] private LayerMask separator;
+    [SerializeField] LayerMask wall;
+    [SerializeField] LayerMask separator;
 
     [Header("Game Objects")]
-    [SerializeField] private Transform movePoint;
+    [SerializeField] Transform movePoint;
 
-    // Components
-    private PlayerManager playerManager;
-    private SpriteRenderer spriteRenderer;
-    private Animator animator;
-    private AudioSource audioSource;
 
-    private void Start()
-    {
-        // Get components
+    void Start() {
         playerManager = GetComponent<PlayerManager>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
+
+        // Subscribe to events
+        playerManager.scoreManager.OnPlayerDeath += () => isPlayerDeath = true;
 
         // Initialize player movement
         origin = transform.position;
         movePoint.parent = null;
     }
 
-    private void Update()
-    {
-        isPlayerDeath = playerManager.ScoreManager.IsPlayerDeath;
+
+    void Update() {
         if (!isPlayerDeath) PlayerMovement();
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        /*
-        if (other.gameObject.tag == "PowerUp")
-        {
-            Destroy(other.gameObject);
-            playerManager.PowerUp = true;
-        }
-        */
-    }
 
-    private void PlayerMovement()
-    {
+    void PlayerMovement() {
         // Move towards move point
         transform.position = Vector3.MoveTowards(transform.position, movePoint.position, speed * Time.deltaTime);
 
-        // Determine last input
-        if (Input.GetAxisRaw("Horizontal") == 1 && !Physics2D.OverlapCircle(movePoint.position + Vector3.right, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.right, 0.25f, separator))
-        {
-            lastInput = Vector2.right;
-            animator.enabled = true;
-        }
-        else if (Input.GetAxisRaw("Horizontal") == -1 && !Physics2D.OverlapCircle(movePoint.position + Vector3.left, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.left, 0.25f, separator))
-        {
-            lastInput = Vector2.left;
-            animator.enabled = true;
-        }
-        else if (Input.GetAxisRaw("Vertical") == 1 && !Physics2D.OverlapCircle(movePoint.position + Vector3.up, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.up, 0.25f, separator))
-        {
-            lastInput = Vector2.up;
-            animator.enabled = true;
-        }
-        else if (Input.GetAxisRaw("Vertical") == -1 && !Physics2D.OverlapCircle(movePoint.position + Vector3.down, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.down, 0.25f, separator))
-        {
-            lastInput = Vector2.down;
-            animator.enabled = true;
-        }
+        DetermineLastInput();
 
         // Move MovePoint towards last input
-        if (Vector3.Distance(transform.position, movePoint.position) <= 0)
-        {
-            if (lastInput == Vector2.right && !Physics2D.OverlapCircle(movePoint.position + Vector3.right, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.right, 0.25f, separator))
-            {
+        if (Vector3.Distance(transform.position, movePoint.position) <= 0) {
+            if (lastInput == Vector2.right && !MovePointOverlapCircle(Vector3.right, wall) && !MovePointOverlapCircle(Vector3.right, separator)) {
                 movePoint.position = new Vector3(transform.position.x + 1, transform.position.y, 0);
                 transform.eulerAngles = Vector3.zero;
             }
-            else if (lastInput == Vector2.left && !Physics2D.OverlapCircle(movePoint.position + Vector3.left, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.left, 0.25f, separator))
-            {
+            else if (lastInput == Vector2.left && !MovePointOverlapCircle(Vector3.left, wall) && !MovePointOverlapCircle(Vector3.left, separator)) {
                 movePoint.position = new Vector3(transform.position.x - 1, transform.position.y, 0);
                 transform.eulerAngles = new Vector3(0, 0, 180);
             }
-            else if (lastInput == Vector2.up && !Physics2D.OverlapCircle(movePoint.position + Vector3.up, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.up, 0.25f, separator))
-            {
+            else if (lastInput == Vector2.up && !MovePointOverlapCircle(Vector3.up, wall) && !MovePointOverlapCircle(Vector3.up, separator)) {
                 movePoint.position = new Vector3(transform.position.x, transform.position.y + 1, 0);
                 transform.eulerAngles = new Vector3(0, 0, 90);
             }
-            else if (lastInput == Vector2.down && !Physics2D.OverlapCircle(movePoint.position + Vector3.down, 0.25f, wall) && !Physics2D.OverlapCircle(movePoint.position + Vector3.down, 0.25f, separator))
-            {
+            else if (lastInput == Vector2.down && !MovePointOverlapCircle(Vector3.down, wall) && !MovePointOverlapCircle(Vector3.down, separator)) {
                 movePoint.position = new Vector3(transform.position.x, transform.position.y - 1, 0);
                 transform.eulerAngles = new Vector3(0, 0, 270);
             }
-            else
-            {
+            else {
                 movePoint.position = new Vector3(transform.position.x, transform.position.y, 0);
-                animator.enabled = false;
+                playerManager.animator.enabled = false;
             }
         }
     }
 
-    private void Reset()
-    {
+
+    void DetermineLastInput() {
+        if (Input.GetAxisRaw("Horizontal") == 1 && !MovePointOverlapCircle(Vector3.right, wall) && !MovePointOverlapCircle(Vector3.right, separator)) {
+            lastInput = Vector2.right;
+            playerManager.animator.enabled = true;
+        }
+        else if (Input.GetAxisRaw("Horizontal") == -1 && !MovePointOverlapCircle(Vector3.left, wall) && !MovePointOverlapCircle(Vector3.left, separator)) {
+            lastInput = Vector2.left;
+            playerManager.animator.enabled = true;
+        }
+        else if (Input.GetAxisRaw("Vertical") == 1 && !MovePointOverlapCircle(Vector3.up, wall) && !MovePointOverlapCircle(Vector3.up, separator)) {
+            lastInput = Vector2.up;
+            playerManager.animator.enabled = true;
+        }
+        else if (Input.GetAxisRaw("Vertical") == -1 && !MovePointOverlapCircle(Vector3.down, wall) && !MovePointOverlapCircle(Vector3.down, separator)) {
+            lastInput = Vector2.down;
+            playerManager.animator.enabled = true;
+        }
+    }
+
+
+    void Reset() {
         // Reset position and movement
         transform.position = origin;
         movePoint.position = origin;
         lastInput = Vector3.zero;
 
         // Reset sprite and animation
-        animator.enabled = false;
+        playerManager.animator.enabled = false;
         transform.eulerAngles = Vector3.zero;
-        spriteRenderer.sprite = startSprite;
-        animator.Play("Player Idle");
+        playerManager.spriteRenderer.sprite = startSprite;
+        playerManager.animator.Play("Player Idle");
 
-        audioSource.Play();
+        playerManager.audioSource.Play();
 
         // Reset movement
         isPlayerDeath = false;
-        playerManager.ScoreManager.IsPlayerDeath = isPlayerDeath;
+        OnRestart?.Invoke();
+    }
+
+    bool MovePointOverlapCircle(Vector3 direction, LayerMask layer) {
+        return Physics2D.OverlapCircle(movePoint.position + direction, 0.25f, layer);
     }
 
     // Expose move point position
-    public void SetMovePointPosition(Vector3 position)
-    {
-        movePoint.position = position;
-    }
+    public void SetMovePointPosition(Vector3 position) => movePoint.position = position;
 }

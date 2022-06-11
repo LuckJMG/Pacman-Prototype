@@ -1,102 +1,56 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
-public class GhostController : MonoBehaviour,IMovePointDependable
-{
+public class GhostController : MonoBehaviour,IMovePointDependable {
+    GhostManager ghostManager;
+
     [Header("Fields")]
-    [Range(0f, 10f)] [SerializeField] private float speed = 4f;
-    // [SerializeField] private float timer = 60;
-    // [HideInInspector] public bool Vulnerable = false;
-    private int direction;
-    private int lastDirection;
-    private Vector3 origin;
-    private List<int> possibleDirections = new List<int>{};
+    [Range(0f, 10f)] [SerializeField] float speed = 4f;
+    bool isPlayerDeath;
+    int direction;
+    int lastDirection;
+    Vector3 origin;
+    List<int> possibleDirections = new List<int>{};
 
     [Header("Layers")]
-    [SerializeField] private LayerMask wall;
+    [SerializeField] LayerMask wall;
 
     [Header("Game Objects")]
-    [SerializeField] private PlayerManager playerManager;
-    [SerializeField] private Transform movePoint;
+    [SerializeField] Transform movePoint;
 
-    // Components
-    private GhostManager ghostManager;
-    private SpriteRenderer spriteRenderer;
-    private Animator animator;
 
-    private void Start()
-    {
-        // Get components
+    void Start() {
         ghostManager = GetComponent<GhostManager>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        animator = GetComponent<Animator>();
+
+        // Subscribe to events
+        ghostManager.gameManager.playerManager.scoreManager.OnPlayerDeath += () => isPlayerDeath = true;
+        ghostManager.gameManager.playerManager.playerController.OnRestart += () => isPlayerDeath = false;
 
         // Start attributes;
         origin = transform.position;
         movePoint.parent = null;
     }
 
-    private void Update()
-    {
-        bool isPlayerDeath = ghostManager.GameManager.PlayerManager.ScoreManager.IsPlayerDeath;
 
+    void Update() {
         transform.position = Vector3.MoveTowards(transform.position, movePoint.position, speed * Time.deltaTime);
 
-        /*
-        if (playerManager.PowerUp)
-        {
-            Vulnerable = true;
-        }
-        */
-
-        if (isPlayerDeath)
-        {
-            // Reset position
-            transform.position = origin;
-            movePoint.position = origin;
-
-            // Reset animation
-            animator.Play("Side");
-            transform.localScale = Vector3.one;
-
-            //Disappear in player death
-            animator.enabled = false;
-            spriteRenderer.enabled = false;
-        }
-        else if (Vector3.Distance(transform.position, movePoint.position) <= 0)
-        {
-            animator.enabled = true;
-            spriteRenderer.enabled = true;
+        if (isPlayerDeath) Restart();
+        else if (Vector3.Distance(transform.position, movePoint.position) <= 0) {
+            ghostManager.animator.enabled = true;
+            ghostManager.spriteRenderer.enabled = true;
 
             RandomDirection();
 
-            /*
-            // Manage animation
-            if (Vulnerable)
-            {
-                if (timer > 0)
-                {
-                    animator.Play("Vulnerable First Phase");
-                    timer -= 1;
-                }
-                else
-                {
-                    Vulnerable = false;
-                    animator.Play("Side");
-                    // Set timer main relation with power up player
-                }
-            }
-            */
-            animator.SetInteger("direction", direction);
+            ghostManager.animator.SetInteger("direction", direction);
             if (direction == 1) transform.localScale = new Vector3(-1, 1, 1);
             else if (direction == 2) transform.localScale = Vector3.one;
         }
-
     }
 
+
     // Selects a valid random direction
-    private void RandomDirection()
-    {
+    void RandomDirection() {
         // Reset directions
         possibleDirections.Clear();
 
@@ -113,28 +67,40 @@ public class GhostController : MonoBehaviour,IMovePointDependable
         direction = possibleDirections[Random.Range(0, possibleDirections.Count)];
 
         // Check if future position is available
-        if (direction == 1 && !Physics2D.OverlapCircle(movePoint.position + Vector3.right, 0.25f, wall))
-        {
+        if (direction == 1 && !Physics2D.OverlapCircle(movePoint.position + Vector3.right, 0.25f, wall)) {
             lastDirection = 2;
             movePoint.position = new Vector3(transform.position.x + 1, transform.position.y, 0);
         }
-        else if (direction == 2 && !Physics2D.OverlapCircle(movePoint.position + Vector3.left, 0.25f, wall))
-        {
+        else if (direction == 2 && !Physics2D.OverlapCircle(movePoint.position + Vector3.left, 0.25f, wall)) {
             lastDirection = 1;
             movePoint.position = new Vector3(transform.position.x - 1, transform.position.y, 0);
         }
-        else if (direction == 3 && !Physics2D.OverlapCircle(movePoint.position + Vector3.up, 0.25f, wall))
-        {
+        else if (direction == 3 && !Physics2D.OverlapCircle(movePoint.position + Vector3.up, 0.25f, wall)) {
             lastDirection = 4;
             movePoint.position = new Vector3(transform.position.x, transform.position.y + 1, 0);
         }
-        else if (direction == 4 && !Physics2D.OverlapCircle(movePoint.position + Vector3.down, 0.25f, wall))
-        {
+        else if (direction == 4 && !Physics2D.OverlapCircle(movePoint.position + Vector3.down, 0.25f, wall)) {
             lastDirection = 3;
             movePoint.position = new Vector3(transform.position.x, transform.position.y - 1, 0);
         }
     }
 
+
+    void Restart() {
+            // Reset position
+            transform.position = origin;
+            movePoint.position = origin;
+
+            // Reset animation
+            ghostManager.animator.Play("Side");
+            transform.localScale = Vector3.one;
+
+            //Disappear in player death
+            ghostManager.animator.enabled = false;
+            ghostManager.spriteRenderer.enabled = false;
+    }
+
+
     // Expose move point position
-    public void SetMovePointPosition(Vector3 position) { movePoint.position = position; }
+    public void SetMovePointPosition(Vector3 position) => movePoint.position = position;
 }

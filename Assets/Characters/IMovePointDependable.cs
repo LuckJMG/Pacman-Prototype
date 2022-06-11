@@ -1,6 +1,5 @@
 using UnityEngine;
 
-public interface IMovePointDependable
-{
+public interface IMovePointDependable {
     void SetMovePointPosition(Vector3 position);
 }

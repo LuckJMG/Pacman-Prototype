@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 489845818014744906}
   - component: {fileID: 595904919661819531}
   - component: {fileID: 489845818014744904}
-  - component: {fileID: 4422497808283860505}
   - component: {fileID: 489845818014744907}
   - component: {fileID: 489845818014744909}
   - component: {fileID: -2677841043483134408}
@@ -83,7 +82,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameManager: {fileID: 0}
-  PowerDown: 0
+  spriteRenderer: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!114 &489845818014744904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,25 +97,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4
-  timer: 60
-  Vulnerable: 0
   wall:
     serializedVersion: 2
     m_Bits: 64
-  playerManager: {fileID: 0}
   movePoint: {fileID: 489845817856130904}
---- !u!114 &4422497808283860505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 489845818014744905}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1b396672b0b4b54dac4a61de730b1a7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!212 &489845818014744907
 SpriteRenderer:
   m_ObjectHideFlags: 0

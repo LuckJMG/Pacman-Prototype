@@ -2,35 +2,27 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class UIManager : MonoBehaviour
-{
-    [SerializeField] private GameManager gameManager;
-
-    // Fields
-    private int previousLives;
+public class UIManager : MonoBehaviour {
+    [SerializeField] GameManager gameManager;
 
     [Header("Game Objects")]
-    [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private Image[] livesImages;
+    [SerializeField] TextMeshProUGUI scoreText;
+    [SerializeField] Image[] livesImages;
 
-    private void Start()
-    {
-        previousLives = gameManager.PlayerManager.ScoreManager.Lives;
+
+    void Start() {
+        // Subscribe to events
+        gameManager.playerManager.scoreManager.OnGetPoint += OnGetPoint;
+        gameManager.playerManager.scoreManager.OnLoseLive += OnLoseLive;
     }
 
-    private void Update()
-    {
-        int lives = gameManager.PlayerManager.ScoreManager.Lives;
-        int score = gameManager.PlayerManager.ScoreManager.Score;
 
-        // Update lives display
-        if (previousLives != lives)
-        {
-            livesImages[lives].enabled = false;
-            previousLives = lives;
-        }
+    // Update score display
+    void OnGetPoint(int score) => scoreText.text = "Score: " + score.ToString();
 
-        // Update score display
-        scoreText.text = "Score: " + score.ToString();
+
+    // Update lives display
+    void OnLoseLive(int lives) {
+        if (lives >= 0) livesImages[lives].enabled = false;
     }
 }

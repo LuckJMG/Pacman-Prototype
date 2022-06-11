@@ -1,30 +1,47 @@
 using UnityEngine;
 
-public class WarpManager : MonoBehaviour
-{
+public class WarpManager : MonoBehaviour {
     // Constructors
-    // private enum DirectionOffset {up, down, right, left}
+    enum DirectionOffset {up = 1, down = -1, right = 2, left = -2}
 
     [Header("Fields")]
-    [SerializeField] private int direction;
-    // [SerializeField] private DirectionOffset directionOffset;
-    private Vector3 destinationCoordinates;
+    [SerializeField] DirectionOffset directionOffset;
+    Vector3 destinationCoordinates;
 
     [Header("Game Objects")]
-    [SerializeField] private WarpManager destination;
+    [SerializeField] WarpManager destination;
 
-    private void Start()
-    {
-        float xDestination = destination.transform.position.x + destination.direction;
-        float yDestination = destination.transform.position.y;
 
-        destinationCoordinates = new Vector3(xDestination, yDestination, 0);
+    void Start() {
+        destinationCoordinates = CalculateDestinationCoordinates(destination);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
+
+    void OnTriggerEnter2D(Collider2D other) {
+        // If has a move point, teleport the move point
         IMovePointDependable iMovePointDependable = other.GetComponent<IMovePointDependable>();
-        if (iMovePointDependable != null) { iMovePointDependable.SetMovePointPosition(destinationCoordinates); }
+        if (iMovePointDependable != null) iMovePointDependable.SetMovePointPosition(destinationCoordinates);
+
+        // Teleport object
         other.transform.position = destinationCoordinates;
+    }
+
+
+    Vector3 CalculateDestinationCoordinates(WarpManager destination) {
+        // Variables
+        float xDestination;
+        float yDestination;
+
+        // Check if destination is in the vertical or horizontal axis
+        if (directionOffset == DirectionOffset.up || directionOffset == DirectionOffset.down) {
+            xDestination = destination.transform.position.x;
+            yDestination = destination.transform.position.y + (int)destination.directionOffset;
+        }
+        else {
+            xDestination = destination.transform.position.x + (int)destination.directionOffset / 2;
+            yDestination = destination.transform.position.y;
+        }
+
+        return new Vector3(xDestination, yDestination, 0);
     }
 }
