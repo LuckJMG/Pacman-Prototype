@@ -2,57 +2,63 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public class GhostController : MonoBehaviour,IMovePointDependable {
-    GhostManager ghostManager;
-
     [Header("Fields")]
     [Range(0f, 10f)] [SerializeField] float speed = 4f;
     bool isPlayerDeath;
     int direction;
     int lastDirection;
-    Vector3 origin;
-    List<int> possibleDirections = new List<int>{};
+    Vector2 origin;
 
     [Header("Layers")]
     [SerializeField] LayerMask wall;
 
+    // Components
+    SpriteRenderer spriteRenderer;
+    Animator animator;
+
     [Header("Game Objects")]
     [SerializeField] Transform movePoint;
-
+    ScoreManager scoreManager;
+    PlayerController playerController;
 
     void Start() {
-        ghostManager = GetComponent<GhostManager>();
+        // Get components
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
+
+        // Get game objects
+        scoreManager = FindObjectOfType<ScoreManager>();
+        playerController = FindObjectOfType<PlayerController>();
 
         // Subscribe to events
-        ghostManager.gameManager.playerManager.scoreManager.OnPlayerDeath += () => isPlayerDeath = true;
-        ghostManager.gameManager.playerManager.playerController.OnRestart += () => isPlayerDeath = false;
+        if (scoreManager != null) scoreManager.OnPlayerDeath += () => isPlayerDeath = true;
+        if (playerController != null) playerController.OnRestart += () => isPlayerDeath = false;
 
         // Start attributes;
         origin = transform.position;
         movePoint.parent = null;
     }
 
-
     void Update() {
-        transform.position = Vector3.MoveTowards(transform.position, movePoint.position, speed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, movePoint.position, speed * Time.deltaTime);
 
         if (isPlayerDeath) Restart();
-        else if (Vector3.Distance(transform.position, movePoint.position) <= 0) {
-            ghostManager.animator.enabled = true;
-            ghostManager.spriteRenderer.enabled = true;
+        else if (Vector2.Distance(transform.position, movePoint.position) <= 0) {
+            animator.enabled = true;
+            spriteRenderer.enabled = true;
 
             RandomDirection();
 
-            ghostManager.animator.SetInteger("direction", direction);
+            animator.SetInteger("direction", direction);
             if (direction == 1) transform.localScale = new Vector3(-1, 1, 1);
             else if (direction == 2) transform.localScale = Vector3.one;
         }
     }
 
-
     // Selects a valid random direction
     void RandomDirection() {
         // Reset directions
-        possibleDirections.Clear();
+        List<int> possibleDirections = new List<int>{};
 
         // Check available possible directions
         if (!Physics2D.OverlapCircle(movePoint.position + Vector3.right, 0.25f, wall)) possibleDirections.Add(1);
@@ -85,22 +91,20 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
         }
     }
 
-
     void Restart() {
             // Reset position
             transform.position = origin;
             movePoint.position = origin;
 
             // Reset animation
-            ghostManager.animator.Play("Side");
+            animator.Play("Side");
             transform.localScale = Vector3.one;
 
             //Disappear in player death
-            ghostManager.animator.enabled = false;
-            ghostManager.spriteRenderer.enabled = false;
+            animator.enabled = false;
+            spriteRenderer.enabled = false;
     }
 
-
     // Expose move point position
-    public void SetMovePointPosition(Vector3 position) => movePoint.position = position;
+    public void SetMovePointPosition(Vector2 position) => movePoint.position = position;
 }

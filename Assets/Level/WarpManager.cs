@@ -6,16 +6,14 @@ public class WarpManager : MonoBehaviour {
 
     [Header("Fields")]
     [SerializeField] DirectionOffset directionOffset;
-    Vector3 destinationCoordinates;
+    Vector2 destinationCoordinates;
 
     [Header("Game Objects")]
     [SerializeField] WarpManager destination;
 
-
     void Start() {
         destinationCoordinates = CalculateDestinationCoordinates(destination);
     }
-
 
     void OnTriggerEnter2D(Collider2D other) {
         // If has a move point, teleport the move point
@@ -26,8 +24,7 @@ public class WarpManager : MonoBehaviour {
         other.transform.position = destinationCoordinates;
     }
 
-
-    Vector3 CalculateDestinationCoordinates(WarpManager destination) {
+    Vector2 CalculateDestinationCoordinates(WarpManager destination) {
         // Variables
         float xDestination;
         float yDestination;
@@ -42,6 +39,6 @@ public class WarpManager : MonoBehaviour {
             yDestination = destination.transform.position.y;
         }
 
-        return new Vector3(xDestination, yDestination, 0);
+        return new Vector2(xDestination, yDestination);
     }
 }
