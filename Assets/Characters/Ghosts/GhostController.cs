@@ -18,21 +18,17 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
 
     [Header("Game Objects")]
     [SerializeField] Transform movePoint;
-    ScoreManager scoreManager;
-    PlayerController playerController;
 
-    void Start() {
+    void Awake() {
         // Get components
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+    }
 
-        // Get game objects
-        scoreManager = FindObjectOfType<ScoreManager>();
-        playerController = FindObjectOfType<PlayerController>();
-
+    void Start() {
         // Subscribe to events
-        if (scoreManager != null) scoreManager.OnPlayerDeath += () => isPlayerDeath = true;
-        if (playerController != null) playerController.OnRestart += () => isPlayerDeath = false;
+        ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
+        PlayerController.OnRestart += () => isPlayerDeath = false;
 
         // Start attributes;
         origin = transform.position;
@@ -106,5 +102,7 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
     }
 
     // Expose move point position
-    public void SetMovePointPosition(Vector2 position) => movePoint.position = position;
+    public void SetMovePointPosition(Vector2 position) {
+        movePoint.position = position;
+    }
 }

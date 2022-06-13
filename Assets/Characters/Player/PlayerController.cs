@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     Vector3 origin;
 
     // Events
-    public event Action OnRestart;
+    public static event Action OnRestart;
 
     [Header("Assets")]
     [SerializeField] Sprite startSprite;
@@ -22,20 +22,20 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     SpriteRenderer spriteRenderer;
     Animator animator;
     AudioSource audioSource;
-    ScoreManager scoreManager;
 
     [Header("Game Objects")]
     [SerializeField] Transform movePoint;
 
-    void Start() {
+    void Awake() {
         // Get components
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
-        scoreManager = GetComponent<ScoreManager>();
+    }
 
+    void Start() {
         // Subscribe to events
-        scoreManager.OnPlayerDeath += () => isPlayerDeath = true;
+        ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
 
         // Initialize player movement
         origin = transform.position;
@@ -120,5 +120,7 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     }
 
     // Expose move point position
-    public void SetMovePointPosition(Vector2 position) => movePoint.position = position;
+    public void SetMovePointPosition(Vector2 position) {
+        movePoint.position = position;
+    }
 }

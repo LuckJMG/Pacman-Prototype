@@ -1,16 +1,22 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
+using System.Collections;
 
 public class ScoreManager : MonoBehaviour {
     // Fields
-    [HideInInspector] public int lives = 3;
-    [HideInInspector] public int score;
+    int score;
+    int lives = 3;
+    int pointScore = 10;
+    int powerUpScore = 50;
+    int ghostScore = 200;
 
     // Events
-    public event Action OnPlayerDeath;
-    public event Action<int> OnGetPoint;
-    public event Action<int> OnLoseLive;
+    public static event Action OnPlayerDeath;
+    public static event Action OnPowerUp;
+    public static event Action OnEatGhost;
+    public static event Action<int> OnGetPoint;
+    public static event Action<int> OnLoseLive;
 
     [Header("Assets")]
     [SerializeField] Tilemap points;
@@ -21,7 +27,7 @@ public class ScoreManager : MonoBehaviour {
     Animator animator;
     AudioSource audioSource;
 
-    void Start() {
+    void Awake() {
         // Get components
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
@@ -32,12 +38,36 @@ public class ScoreManager : MonoBehaviour {
     }
 
     void OnTriggerEnter2D(Collider2D other) {
-        if (other.gameObject.tag == "Ghost") Death();
+        if (other.gameObject.tag == "Ghost") GhostCollision(other);
+        if (other.gameObject.tag == "PowerUp") PowerUp(other);
+    }
+
+    void GhostCollision(Collider2D ghostCollider) {
+        Vulnerable ghost = ghostCollider.GetComponent<Vulnerable>();
+        OnEatGhost += ghost.OnEaten;
+
+        if (ghost != null) {
+            if (ghost.isVulnerable) {
+                OnEatGhost?.Invoke();
+                score += ghostScore * Vulnerable.ghostEaten;
+                OnGetPoint?.Invoke(score);
+            }
+            else Death();
+        }
+
+        OnEatGhost -= ghost.OnEaten;
+    }
+
+    void PowerUp(Collider2D powerUpCollider) {
+        score += powerUpScore;
+        OnGetPoint?.Invoke(score);
+        OnPowerUp?.Invoke();
+        Destroy(powerUpCollider.gameObject);
     }
 
     void GetPoint() {
         points.SetTile(Vector3Int.FloorToInt(transform.position), null);
-        score += 10;
+        score += pointScore;
         OnGetPoint?.Invoke(score);
         audioSource.PlayOneShot(pacmanChomp);
     }

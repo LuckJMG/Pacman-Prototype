@@ -41,6 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 489845818014744906}
   - component: {fileID: 489845818014744904}
+  - component: {fileID: -6582470315439323586}
   - component: {fileID: 489845818014744907}
   - component: {fileID: 489845818014744909}
   - component: {fileID: -2677841043483134408}
@@ -85,6 +86,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   movePoint: {fileID: 489845817856130904}
+--- !u!114 &-6582470315439323586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 489845818014744905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 756101d4367f18d4e8deef0451201ddb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeFirstPhase: 5
+  timeSecondPhase: 3
 --- !u!212 &489845818014744907
 SpriteRenderer:
   m_ObjectHideFlags: 0
