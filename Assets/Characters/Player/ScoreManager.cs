@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System;
-using System.Collections;
 
 public class ScoreManager : MonoBehaviour {
     // Fields
@@ -9,7 +8,7 @@ public class ScoreManager : MonoBehaviour {
     int lives = 3;
     int pointScore = 10;
     int powerUpScore = 50;
-    int ghostScore = 200;
+    [HideInInspector] public static int ghostScore = 200;
 
     // Events
     public static event Action OnPlayerDeath;
@@ -22,6 +21,7 @@ public class ScoreManager : MonoBehaviour {
     [SerializeField] Tilemap points;
     [SerializeField] AudioClip pacmanChomp;
     [SerializeField] AudioClip pacmanDeath;
+    [SerializeField] AudioClip ghostEaten;
 
     // Components
     Animator animator;
@@ -49,6 +49,7 @@ public class ScoreManager : MonoBehaviour {
         if (ghost != null) {
             if (ghost.isVulnerable) {
                 OnEatGhost?.Invoke();
+                audioSource.PlayOneShot(ghostEaten);
                 score += ghostScore * Vulnerable.ghostEaten;
                 OnGetPoint?.Invoke(score);
             }
@@ -76,12 +77,11 @@ public class ScoreManager : MonoBehaviour {
         lives -= 1;
         OnLoseLive?.Invoke(lives);
 
-        audioSource.Stop();
         audioSource.PlayOneShot(pacmanDeath);
 
         OnPlayerDeath?.Invoke();
 
-        animator.enabled = true;
         animator.Play("Player Death");
+        animator.enabled = true;
     }
 }

@@ -85,7 +85,6 @@ MonoBehaviour:
   wall:
     serializedVersion: 2
     m_Bits: 64
-  movePoint: {fileID: 489845817856130904}
 --- !u!114 &-6582470315439323586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,6 +99,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeFirstPhase: 5
   timeSecondPhase: 3
+  slowdown: 1.5
+  isVulnerable: 0
+  ghostEatenPointsPrefab: {fileID: 7657481917506973021, guid: d8e32185d6130cb44a5188b3eec08089, type: 3}
 --- !u!212 &489845818014744907
 SpriteRenderer:
   m_ObjectHideFlags: 0

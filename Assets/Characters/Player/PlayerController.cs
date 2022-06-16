@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using UnityEngine;
 using System;
 
@@ -5,7 +6,7 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     [Header("Fields")]
     [Range(0f, 10f)] [SerializeField] float speed = 4f;
     bool isPlayerDeath;
-    Vector2 lastInput;
+    Vector2 lastInput = Vector2.right;
     Vector3 origin;
 
     // Events
@@ -21,23 +22,24 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     // Components
     SpriteRenderer spriteRenderer;
     Animator animator;
-    AudioSource audioSource;
 
-    [Header("Game Objects")]
-    [SerializeField] Transform movePoint;
+    // Game Objects
+    Transform movePoint;
 
     void Awake() {
         // Get components
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
+
+        // Find game objects
+        movePoint = transform.GetChild(0).GetComponent<Transform>();
     }
 
     void Start() {
         // Subscribe to events
         ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
 
-        // Initialize player movement
+        // Initialize
         origin = transform.position;
         movePoint.parent = null;
     }
@@ -47,6 +49,8 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     }
 
     void PlayerMovement() {
+        animator.enabled = true;
+
         // Move towards move point
         transform.position = Vector2.MoveTowards(transform.position, movePoint.position, speed * Time.deltaTime);
 
@@ -100,15 +104,12 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
         // Reset position and movement
         transform.position = origin;
         movePoint.position = origin;
-        lastInput = Vector2.zero;
+        lastInput = Vector2.right;
 
         // Reset sprite and animation
-        animator.enabled = false;
         transform.eulerAngles = Vector3.zero;
-        spriteRenderer.sprite = startSprite;
         animator.Play("Player Idle");
-
-        audioSource.Play();
+        spriteRenderer.sprite = startSprite;
 
         // Reset movement
         isPlayerDeath = false;

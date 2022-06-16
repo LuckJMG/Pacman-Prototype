@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class GhostController : MonoBehaviour,IMovePointDependable {
     [Header("Fields")]
-    [Range(0f, 10f)] [SerializeField] float speed = 4f;
+    [Range(0f, 10f)] public float speed = 4f;
     bool isPlayerDeath;
     int direction;
     int lastDirection;
@@ -16,13 +16,16 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
     SpriteRenderer spriteRenderer;
     Animator animator;
 
-    [Header("Game Objects")]
-    [SerializeField] Transform movePoint;
+    // Game objects
+    Transform movePoint;
 
     void Awake() {
         // Get components
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
+
+        // Find game objects
+        movePoint = transform.GetChild(0).GetComponent<Transform>();
     }
 
     void Start() {
@@ -30,7 +33,7 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
         ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
         PlayerController.OnRestart += () => isPlayerDeath = false;
 
-        // Start attributes;
+        // Initialize
         origin = transform.position;
         movePoint.parent = null;
     }
