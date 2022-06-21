@@ -6,6 +6,7 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
     [Range(0f, 10f)] public float speed = 4f;
     bool isPlayerDeath;
     bool pause;
+    bool gameOver;
     int direction;
     int lastDirection;
     Vector2 origin;
@@ -32,6 +33,10 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
     void Start() {
         // Subscribe to events
         GameManager.OnPause += isPause => pause = isPause;
+        GameManager.OnGameOver += () => {
+            gameOver = true;
+            spriteRenderer.enabled = false;
+        };
         ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
         PlayerController.OnRestart += () => isPlayerDeath = false;
 
@@ -43,7 +48,7 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
     void Update() {
         transform.position = Vector2.MoveTowards(transform.position, movePoint.position, speed * Time.deltaTime);
 
-        if (!pause) {
+        if (!pause && !gameOver) {
             if (isPlayerDeath) Restart();
             else if (Vector2.Distance(transform.position, movePoint.position) <= 0) {
                 animator.enabled = true;

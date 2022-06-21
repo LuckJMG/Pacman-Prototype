@@ -1,3 +1,4 @@
+using System.Diagnostics.Tracing;
 using System.ComponentModel;
 using UnityEngine;
 using System;
@@ -7,11 +8,13 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     [Range(0f, 10f)] [SerializeField] float speed = 4f;
     bool isPlayerDeath;
     bool pause;
+    bool gameOver;
     Vector2 lastInput = Vector2.right;
     Vector3 origin;
 
     // Events
-    public static event Action OnRestart;
+    public static Action OnRestart;
+    public static Action OnGameOver;
 
     [Header("Assets")]
     [SerializeField] Sprite startSprite;
@@ -32,6 +35,10 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
 
+        // Restart static events
+        OnRestart = null;
+        OnGameOver = null;
+
         // Find game objects
         movePoint = transform.GetChild(0).GetComponent<Transform>();
     }
@@ -39,6 +46,10 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     void Start() {
         // Subscribe to events
         GameManager.OnPause += isPause => pause = isPause;
+        GameManager.OnGameOver += () => {
+            gameOver = true;
+            spriteRenderer.enabled = false;
+        };
         ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
 
         // Initialize
@@ -47,7 +58,7 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     }
 
     void Update() {
-        if (!pause) {
+        if (!pause && !gameOver) {
             if (!isPlayerDeath) PlayerMovement();
         }
     }
@@ -105,6 +116,11 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     }
 
     void Reset() {
+        if (ScoreManager.lives <= 0) {
+            OnGameOver?.Invoke();
+            return;
+        }
+
         // Reset position and movement
         transform.position = origin;
         movePoint.position = origin;

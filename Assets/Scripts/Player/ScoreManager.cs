@@ -5,17 +5,17 @@ using System;
 public class ScoreManager : MonoBehaviour {
     // Fields
     int score;
-    int lives = 3;
     int pointScore = 10;
     int powerUpScore = 50;
+    static public int lives;
     [HideInInspector] public static int ghostScore = 200;
 
     // Events
-    public static event Action OnPlayerDeath;
-    public static event Action OnPowerUp;
-    public static event Action OnEatGhost;
-    public static event Action<int> OnGetPoint;
-    public static event Action<int> OnLoseLive;
+    public static Action OnPlayerDeath;
+    public static Action OnPowerUp;
+    public static Action OnEatGhost;
+    public static Action<int> OnGetPoint;
+    public static Action<int> OnLoseLive;
 
     [Header("Assets")]
     [SerializeField] Tilemap points;
@@ -31,6 +31,16 @@ public class ScoreManager : MonoBehaviour {
         // Get components
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+
+        // Restart static events
+        OnPlayerDeath = null;
+        OnPowerUp = null;
+        OnEatGhost = null;
+        OnGetPoint = null;
+        OnLoseLive = null;
+
+        // Initialize fields
+        lives = 3;
     }
 
     void Update() {

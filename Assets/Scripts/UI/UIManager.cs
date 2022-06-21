@@ -5,7 +5,11 @@ using TMPro;
 public class UIManager : MonoBehaviour {
     [Header("Game Objects")]
     [SerializeField] TextMeshProUGUI scoreText;
-    [SerializeField] Image[] livesImages;
+    Image[] livesImages = new Image[3];
+
+    void Awake() {
+        livesImages = transform.GetChild(1).GetComponentsInChildren<Image>();
+    }
 
     void Start() {
         // Subscribe to events
@@ -20,6 +24,8 @@ public class UIManager : MonoBehaviour {
 
     // Update lives display
     void OnLoseLive(int lives) {
-        if (lives >= 0) livesImages[lives].enabled = false;
+        if (livesImages[lives] != null) {
+            if (lives >= 0) livesImages[lives].enabled = false;
+        }
     }
 }
