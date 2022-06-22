@@ -13,8 +13,8 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     Vector3 origin;
 
     // Events
-    public static Action OnRestart;
-    public static Action OnGameOver;
+    public Action OnRestart;
+    public Action OnGameOver;
 
     [Header("Assets")]
     [SerializeField] Sprite startSprite;
@@ -24,6 +24,7 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
     [SerializeField] LayerMask separator;
 
     // Components
+    ScoreManager scoreManager;
     SpriteRenderer spriteRenderer;
     Animator animator;
 
@@ -32,12 +33,9 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
 
     void Awake() {
         // Get components
+        scoreManager = GetComponent<ScoreManager>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
-
-        // Restart static events
-        OnRestart = null;
-        OnGameOver = null;
 
         // Find game objects
         movePoint = transform.GetChild(0).GetComponent<Transform>();
@@ -50,7 +48,7 @@ public class PlayerController : MonoBehaviour, IMovePointDependable {
             gameOver = true;
             spriteRenderer.enabled = false;
         };
-        ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
+        scoreManager.OnPlayerDeath += () => isPlayerDeath = true;
 
         // Initialize
         origin = transform.position;

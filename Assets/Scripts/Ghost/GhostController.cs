@@ -37,8 +37,8 @@ public class GhostController : MonoBehaviour,IMovePointDependable {
             gameOver = true;
             spriteRenderer.enabled = false;
         };
-        ScoreManager.OnPlayerDeath += () => isPlayerDeath = true;
-        PlayerController.OnRestart += () => isPlayerDeath = false;
+        FindObjectOfType<ScoreManager>().OnPlayerDeath += () => isPlayerDeath = true;
+        FindObjectOfType<PlayerController>().OnRestart += () => isPlayerDeath = false;
 
         // Initialize
         origin = transform.position;

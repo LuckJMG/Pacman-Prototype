@@ -32,7 +32,7 @@ public class Vulnerable : MonoBehaviour {
 
     void Start() {
         // Subscribe to events
-        ScoreManager.OnPowerUp += () => {
+        FindObjectOfType<ScoreManager>().OnPowerUp += () => {
             vulnerable = OnPowerUp();
             StartCoroutine(vulnerable);
         };

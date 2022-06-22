@@ -16,10 +16,12 @@ public class AudioManager : MonoBehaviour {
     }
 
     void Start() {
+        ScoreManager scoreManager = FindObjectOfType<ScoreManager>();
+
         // Subscribe to events
-        ScoreManager.OnPlayerDeath += () => audioSource.Stop();
-        ScoreManager.OnPowerUp += () => StartCoroutine(OnPowerUp());
-        PlayerController.OnRestart += () => audioSource.Play();
+        scoreManager.OnPlayerDeath += () => audioSource.Stop();
+        scoreManager.OnPowerUp += () => StartCoroutine(OnPowerUp());
+        FindObjectOfType<PlayerController>().OnRestart += () => audioSource.Play();
     }
 
     IEnumerator OnPowerUp() {

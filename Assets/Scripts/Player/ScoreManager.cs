@@ -11,11 +11,11 @@ public class ScoreManager : MonoBehaviour {
     [HideInInspector] public static int ghostScore = 200;
 
     // Events
-    public static Action OnPlayerDeath;
-    public static Action OnPowerUp;
-    public static Action OnEatGhost;
-    public static Action<int> OnGetPoint;
-    public static Action<int> OnLoseLive;
+    public Action OnPlayerDeath;
+    public Action OnPowerUp;
+    public Action OnEatGhost;
+    public Action<int> OnGetPoint;
+    public Action<int> OnLoseLive;
 
     [Header("Assets")]
     [SerializeField] Tilemap points;

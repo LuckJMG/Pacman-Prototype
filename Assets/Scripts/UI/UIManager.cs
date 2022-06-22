@@ -12,9 +12,11 @@ public class UIManager : MonoBehaviour {
     }
 
     void Start() {
+        ScoreManager scoreManager = FindObjectOfType<ScoreManager>();
+
         // Subscribe to events
-        ScoreManager.OnGetPoint += OnGetPoint;
-        ScoreManager.OnLoseLive += OnLoseLive;
+        scoreManager.OnGetPoint += OnGetPoint;
+        scoreManager.OnLoseLive += OnLoseLive;
     }
 
     // Update score display

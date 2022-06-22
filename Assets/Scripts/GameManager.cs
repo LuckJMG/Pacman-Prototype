@@ -4,10 +4,14 @@ using System;
 using System.Collections;
 
 public class GameManager : MonoBehaviour {
-    [SerializeField] GameObject pauseMenu;
-    [SerializeField] GameObject gameOverScreen;
+    // Fields
     bool pause;
 
+    // Game Objects
+    [SerializeField] GameObject pauseMenu;
+    [SerializeField] GameObject gameOverScreen;
+
+    // Events
     static public Action<bool> OnPause;
     static public Action OnGameOver;
 
@@ -19,7 +23,7 @@ public class GameManager : MonoBehaviour {
 
     void Start() {
         // Subscribe to events
-        PlayerController.OnGameOver += () => StartCoroutine(GameOver());
+        FindObjectOfType<PlayerController>().OnGameOver += () => StartCoroutine(GameOver());
     }
 
     void Update() {
