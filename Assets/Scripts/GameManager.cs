@@ -2,10 +2,13 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
+using TMPro;
 
 public class GameManager : MonoBehaviour {
     // Fields
+    int finalScore;
     bool pause;
+    bool gameOver;
 
     // Game Objects
     [SerializeField] GameObject pauseMenu;
@@ -23,7 +26,8 @@ public class GameManager : MonoBehaviour {
 
     void Start() {
         // Subscribe to events
-        FindObjectOfType<PlayerController>().OnGameOver += () => StartCoroutine(GameOver());
+        FindObjectOfType<ScoreManager>().OnGetPoint += score => finalScore = score;
+        FindObjectOfType<PlayerController>().OnGameOver += () => GameOver();
     }
 
     void Update() {
@@ -32,16 +36,18 @@ public class GameManager : MonoBehaviour {
             pauseMenu.SetActive(pause);
             OnPause?.Invoke(pause);
         }
+
+        if (Input.GetKeyDown(KeyCode.Return) && gameOver) {
+            SceneManager.LoadScene("MainMenu");
+        }
     }
 
-    IEnumerator GameOver() {
-        float gameOverScreenTime = 2f;
-
+    void GameOver() {
         // Display game over
+        TextMeshProUGUI textScore = gameOverScreen.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        textScore.text = "Your Score: " + finalScore.ToString();
         gameOverScreen.SetActive(true);
         OnGameOver?.Invoke();
-        yield return new WaitForSeconds(gameOverScreenTime);
-
-        SceneManager.LoadScene("MainMenu");
+        gameOver = true;
     }
 }
